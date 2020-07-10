@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class TestData {
 
     // region 0. Constants
-    private static final int MAX_ITEM = 20;
+    private static final int MAX_ITEM = 30;
     // endregion
 
     // region 1. Constructor

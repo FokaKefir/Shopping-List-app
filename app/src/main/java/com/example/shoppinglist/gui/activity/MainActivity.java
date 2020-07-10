@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.shoppinglist.R;
+import com.example.shoppinglist.gui.itemtouchhelper.MyItemTouchHelper;
 import com.example.shoppinglist.gui.recyclerview.RecyclerViewAdapter;
 import com.example.shoppinglist.logic.listener.MainActivityListener;
 import com.example.shoppinglist.model.Item;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private MainActivityListener listener;
 
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private RecyclerViewAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
     private FloatingActionButton btnAddItem;
@@ -65,28 +66,25 @@ public class MainActivity extends AppCompatActivity {
 
         this.recyclerView.setHasFixedSize(true);
         this.layoutManager = new LinearLayoutManager(this);
-        this.adapter = new RecyclerViewAdapter(testList);
+        this.adapter = new RecyclerViewAdapter(this.testList, this.listener);
+
+        ItemTouchHelper.Callback callback = new MyItemTouchHelper(this.adapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+
+        this.adapter.setItemTouchHelper(itemTouchHelper);
+
+        itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
         this.recyclerView.setLayoutManager(this.layoutManager);
         this.recyclerView.setAdapter(this.adapter);
 
-        new ItemTouchHelper(this.listener).attachToRecyclerView(this.recyclerView);
     }
 
-    public void removeItemAtPosition(int position) {
-        this.testList.remove(position);
-        this.adapter.notifyItemRemoved(position);
-
-        Toast.makeText(this, "Item deleted", Toast.LENGTH_SHORT).show();
-    }
 
     public void editItemAtPosition(int position) {
         // TODO edit item at position
 
-        this.adapter.notifyItemChanged(position);
-
         Toast.makeText(this, "Item changed", Toast.LENGTH_SHORT).show();
-
     }
 
     // endregion
