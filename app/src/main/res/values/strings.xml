@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Shopping List</string>
+    <string name="str_description">Description</string>
+    <string name="str_name">Item\'s name</string>
+    <string name="str_number_of_items">Number of items</string>
 </resources>

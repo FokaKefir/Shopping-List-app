@@ -1,7 +1,6 @@
 package com.example.shoppinglist.logic.listener;
 
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.gui.activity.MainActivity;
@@ -27,8 +26,8 @@ public class MainActivityListener implements View.OnClickListener, RecyclerViewA
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.floating_action_button){
-            Toast.makeText(this.activity, "ADD", Toast.LENGTH_SHORT).show();
+        if (view.getId() == R.id.fab_done){
+            this.activity.createNewItem();
         }
     }
 
