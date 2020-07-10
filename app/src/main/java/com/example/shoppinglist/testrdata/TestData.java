@@ -29,6 +29,7 @@ public class TestData {
             item.setTextName("name" + i);
             item.setTextDescription("description" + i);
             item.setImageResource((i%2 == 0 ? R.drawable.ic_box_red : R.drawable.ic_box_blue));
+            item.setNumberOfItems(i);
 
             testList.add(item);
         }

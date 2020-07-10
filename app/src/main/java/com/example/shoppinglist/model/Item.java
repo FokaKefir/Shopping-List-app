@@ -7,6 +7,7 @@ public class Item {
     private int imageResource;
     private String textName;
     private String textDescription;
+    private int numberOfItems;
 
     // endregion
 
@@ -16,12 +17,14 @@ public class Item {
         this.imageResource = 0;
         this.textName = "No name";
         this.textDescription = "No description";
+        this.numberOfItems = 0;
     }
 
-    public Item(int imageResource, String textName, String textDescription) {
+    public Item(int imageResource, String textName, String textDescription, int numberOfItems) {
         this.imageResource = imageResource;
         this.textName = textName;
         this.textDescription = textDescription;
+        this.numberOfItems = numberOfItems;
     }
 
     // endregion
@@ -40,6 +43,10 @@ public class Item {
         return textDescription;
     }
 
+    public int getNumberOfItems() {
+        return numberOfItems;
+    }
+
     public void setImageResource(int imageResource) {
         this.imageResource = imageResource;
     }
@@ -50,6 +57,10 @@ public class Item {
 
     public void setTextDescription(String textDescription) {
         this.textDescription = textDescription;
+    }
+
+    public void setNumberOfItems(int numberOfItems) {
+        this.numberOfItems = numberOfItems;
     }
 
     // endregion

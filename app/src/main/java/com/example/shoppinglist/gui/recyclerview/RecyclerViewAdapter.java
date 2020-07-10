@@ -16,8 +16,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     // region 1. Decl and Init
 
-    ArrayList<Item> itemList;
-
+    private ArrayList<Item> itemList;
 
     // endregion
 
@@ -47,6 +46,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> {
         holder.imageView.setImageResource(currentItem.getImageResource());
         holder.txtName.setText(currentItem.getTextName());
         holder.txtDescription.setText(currentItem.getTextDescription());
+        holder.txtNumber.setText(String.valueOf(currentItem.getNumberOfItems()));
     }
 
     @Override

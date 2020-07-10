@@ -1,10 +1,13 @@
 package com.example.shoppinglist.gui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.gui.recyclerview.RecyclerViewAdapter;
@@ -28,7 +31,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private FloatingActionButton fabAddItem;
+    private FloatingActionButton btnAddItem;
+
+    private ArrayList<Item> testList;
 
     // endregion
 
@@ -43,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
         this.listener = new MainActivityListener(this);
 
         this.recyclerView = findViewById(R.id.recyclerView);
-        this.fabAddItem = findViewById(R.id.floating_action_button);
+        this.btnAddItem = findViewById(R.id.floating_action_button);
+
+        this.btnAddItem.setOnClickListener(this.listener);
 
         buildRecyclerView();
-
-        this.fabAddItem.setOnClickListener(this.listener);
 
     }
 
@@ -56,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     // region 3. Other methods
 
     private void buildRecyclerView(){
-        ArrayList<Item> testList = TestData.getTestItems();
+        this.testList = TestData.getTestItems();
 
         this.recyclerView.setHasFixedSize(true);
         this.layoutManager = new LinearLayoutManager(this);
@@ -64,6 +69,24 @@ public class MainActivity extends AppCompatActivity {
 
         this.recyclerView.setLayoutManager(this.layoutManager);
         this.recyclerView.setAdapter(this.adapter);
+
+        new ItemTouchHelper(this.listener).attachToRecyclerView(this.recyclerView);
+    }
+
+    public void removeItemAtPosition(int position) {
+        this.testList.remove(position);
+        this.adapter.notifyItemRemoved(position);
+
+        Toast.makeText(this, "Item deleted", Toast.LENGTH_SHORT).show();
+    }
+
+    public void editItemAtPosition(int position) {
+        // TODO edit item at position
+
+        this.adapter.notifyItemChanged(position);
+
+        Toast.makeText(this, "Item changed", Toast.LENGTH_SHORT).show();
+
     }
 
     // endregion
