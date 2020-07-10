@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import com.example.shoppinglist.R;
@@ -66,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.recyclerView.setHasFixedSize(true);
         this.layoutManager = new LinearLayoutManager(this);
-        this.adapter = new RecyclerViewAdapter(this.testList, this.listener);
+        this.adapter = new RecyclerViewAdapter(this.testList, this);
 
         ItemTouchHelper.Callback callback = new MyItemTouchHelper(this.adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
@@ -85,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
         // TODO edit item at position
 
         Toast.makeText(this, "Item changed", Toast.LENGTH_SHORT).show();
+    }
+
+    public RecyclerViewAdapter.OnItemListener getListener() {
+        return this.listener;
     }
 
     // endregion

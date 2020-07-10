@@ -1,5 +1,7 @@
 package com.example.shoppinglist.gui.recyclerview;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,13 +27,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
     private ItemTouchHelper itemTouchHelper;
     private OnItemListener onItemListener;
 
+    private int deletePosition;
+
     // endregion
 
     // region 2. Constructor
 
-    public RecyclerViewAdapter(ArrayList<Item> itemList, OnItemListener onItemListener) {
+    public RecyclerViewAdapter(ArrayList<Item> itemList, MainActivity activity) {
         this.itemList = itemList;
-        this.onItemListener = onItemListener;
+        this.activity = activity;
+        this.onItemListener = this.activity.getListener();
     }
 
     // endregion
@@ -74,8 +79,28 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
 
     @Override
     public void onItemSwiped(int position) {
-        this.itemList.remove(position);
-        notifyItemRemoved(position);
+        this.deletePosition = position;
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        itemList.remove(deletePosition);
+                        notifyItemRemoved(deletePosition);
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        notifyItemChanged(deletePosition);
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.activity);
+        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+
     }
 
     // endregion
