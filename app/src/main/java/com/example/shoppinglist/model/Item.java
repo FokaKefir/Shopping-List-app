@@ -3,6 +3,8 @@ package com.example.shoppinglist.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Objects;
+
 public class Item implements Parcelable {
 
     // region 0. Constants
@@ -20,6 +22,7 @@ public class Item implements Parcelable {
     private String textName;
     private String textDescription;
     private int numberOfItems;
+    private MyDate date;
 
     // endregion
 
@@ -30,6 +33,7 @@ public class Item implements Parcelable {
         this.textName = DEFAULT_NAME;
         this.textDescription = DEFAULT_DESCRIPTION;
         this.numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
+        this.date = new MyDate();
     }
 
     public Item(int imageResource, String textName, String textDescription, int numberOfItems) {
@@ -39,11 +43,20 @@ public class Item implements Parcelable {
         this.numberOfItems = numberOfItems;
     }
 
+    public Item(int imageResource, String textName, String textDescription, int numberOfItems, MyDate date) {
+        this.imageResource = imageResource;
+        this.textName = textName;
+        this.textDescription = textDescription;
+        this.numberOfItems = numberOfItems;
+        this.date = date;
+    }
+
     protected Item(Parcel parcel){
         this.imageResource = parcel.readInt();
         this.textName = parcel.readString();
         this.textDescription = parcel.readString();
         this.numberOfItems = parcel.readInt();
+        this.date = new MyDate(Objects.requireNonNull(parcel.readString()));
     }
 
     // endregion
@@ -73,6 +86,10 @@ public class Item implements Parcelable {
         return numberOfItems;
     }
 
+    public MyDate getDate() {
+        return date;
+    }
+
     public void setImageResource(int imageResource) {
         this.imageResource = imageResource;
     }
@@ -87,6 +104,10 @@ public class Item implements Parcelable {
 
     public void setNumberOfItems(int numberOfItems) {
         this.numberOfItems = numberOfItems;
+    }
+
+    public void setDate(MyDate date) {
+        this.date = date;
     }
 
     // endregion
@@ -116,6 +137,7 @@ public class Item implements Parcelable {
         parcel.writeString(this.textName);
         parcel.writeString(this.textDescription);
         parcel.writeInt(this.numberOfItems);
+        parcel.writeString(this.date.toString());
 
     }
 

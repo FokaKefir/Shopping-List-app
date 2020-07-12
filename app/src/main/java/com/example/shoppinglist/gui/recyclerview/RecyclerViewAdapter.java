@@ -62,6 +62,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
         holder.txtName.setText(currentItem.getTextName());
         holder.txtDescription.setText(currentItem.getTextDescription());
         holder.txtNumber.setText(String.valueOf(currentItem.getNumberOfItems()));
+        holder.txtDate.setText(currentItem.getDate().toString());
     }
 
     @Override

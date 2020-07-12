@@ -21,6 +21,7 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnTouchL
     public TextView txtName;
     public TextView txtDescription;
     public TextView txtNumber;
+    public TextView txtDate;
 
     private RecyclerViewAdapter.OnItemListener onItemListener;
     private GestureDetector gestureDetector;
@@ -37,6 +38,7 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnTouchL
         this.txtName = itemView.findViewById(R.id.txtName);
         this.txtDescription = itemView.findViewById(R.id.txtDescription);
         this.txtNumber = itemView.findViewById(R.id.txtNumber);
+        this.txtDate = itemView.findViewById(R.id.txtDate);
 
         this.onItemListener = onItemListener;
         this.gestureDetector = new GestureDetector(itemView.getContext(), this);
@@ -85,8 +87,6 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnTouchL
         this.gestureDetector.onTouchEvent(event);
         return true;
     }
-
-
 
     // endregion
 
