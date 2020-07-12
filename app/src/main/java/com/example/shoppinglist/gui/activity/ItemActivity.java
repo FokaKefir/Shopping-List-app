@@ -7,9 +7,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,7 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.Calendar;
 
 
-public class ItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+public class ItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
 
     // region 0. Constants
 
@@ -39,11 +42,14 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton btnDone;
     private Button btnDate;
 
+    private Spinner spinner;
+
     private MyDate date;
+    private int imageResource;
 
     // endregion
 
-    // region 3. Lifecycle
+    // region 2. Lifecycle
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,28 +65,66 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
         this.txtDate = findViewById(R.id.txt_date);
         this.btnDone = findViewById(R.id.fab_done);
         this.btnDate = findViewById(R.id.btn_date);
+        this.spinner = findViewById(R.id.color_spinner);
 
         this.date = new MyDate();
+        this.imageResource = R.drawable.ic_box_blue;
 
+        this.btnDone.setOnClickListener(this);
+        this.btnDate.setOnClickListener(this);
+        this.spinner.setOnItemSelectedListener(this);
+
+        readIntent();
+        buildSpinner();
+
+    }
+
+    // endregion
+
+    // region 3. Other methods
+
+
+    private void readIntent(){
         Intent intent = getIntent();
         Item item = intent.getParcelableExtra(MainActivity.EXTRA_TEXT);
 
         if (item != null && !item.isDefault()){
+            this.imageResource = item.getImageResource();
             this.txtName.setText(item.getTextName());
             this.txtDescription.setText(item.getTextDescription());
             this.txtNumbersOfItems.setText(String.valueOf(item.getNumberOfItems()));
             this.date = item.getDate();
             this.txtDate.setText(this.date.toString());
         }
-
-        this.btnDone.setOnClickListener(this);
-        this.btnDate.setOnClickListener(this);
-
     }
 
-    // endregion
+    private void buildSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.colors,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.spinner.setAdapter(adapter);
+        switch (this.imageResource){
+            case R.drawable.ic_box_blue:
+                this.spinner.setSelection(0);
+                break;
+            case R.drawable.ic_box_green:
+                this.spinner.setSelection(1);
+                break;
+            case R.drawable.ic_box_orange:
+                this.spinner.setSelection(2);
+                break;
+            case R.drawable.ic_box_red:
+                this.spinner.setSelection(3);
+                break;
+            case R.drawable.ic_box_yellow:
+                this.spinner.setSelection(4);
+                break;
+        }
 
-    // region 4. Other methods
+    }
 
     private void showDatePickerDialog(){
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -93,24 +137,28 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
         datePickerDialog.show();
     }
 
+    private void sendResult(){
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(EXTRA_RESULT_TEXT, new Item(
+                this.imageResource,
+                this.txtName.getText().toString(),
+                this.txtDescription.getText().toString(),
+                Integer.parseInt(this.txtNumbersOfItems.getText().toString()),
+                this.date
+        ));
+
+        setResult(RESULT_OK, resultIntent);
+        finish();
+    }
+
     // endregion
 
-    // region 5. Listener
+    // region 4. Listener
 
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.fab_done) {
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra(EXTRA_RESULT_TEXT, new Item(
-                    R.drawable.ic_box_blue,
-                    this.txtName.getText().toString(),
-                    this.txtDescription.getText().toString(),
-                    Integer.parseInt(this.txtNumbersOfItems.getText().toString()),
-                    this.date
-            ));
-
-            setResult(RESULT_OK, resultIntent);
-            finish();
+            sendResult();
         } else if (view.getId() == R.id.btn_date) {
             showDatePickerDialog();
         }
@@ -120,6 +168,32 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
     public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
         this.date = new MyDate(year, month, dayOfMonth);
         this.txtDate.setText(this.date.toString());
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+        String strColor = adapterView.getItemAtPosition(position).toString();
+        switch (strColor){
+            case "blue":
+                this.imageResource = R.drawable.ic_box_blue;
+                break;
+            case "green":
+                this.imageResource = R.drawable.ic_box_green;
+                break;
+            case "orange":
+                this.imageResource = R.drawable.ic_box_orange;
+                break;
+            case "red":
+                this.imageResource = R.drawable.ic_box_red;
+                break;
+            case "yellow":
+                this.imageResource = R.drawable.ic_box_yellow;
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
     }
 
     // endregion

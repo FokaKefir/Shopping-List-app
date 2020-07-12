@@ -6,4 +6,12 @@
     <string name="str_date">Date</string>
     <string name="str_choose_date">Choose date</string>
 
+    <string-array name="colors">
+        <item>blue</item>
+        <item>green</item>
+        <item>orange</item>
+        <item>red</item>
+        <item>yellow</item>
+    </string-array>
+
 </resources>
