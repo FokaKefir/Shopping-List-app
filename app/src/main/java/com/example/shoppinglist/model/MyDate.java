@@ -4,6 +4,10 @@ public class MyDate {
 
     // region 0. Constants
 
+    private static final int DEFAULT_YEAR = 1;
+    private static final int DEFAULT_MONTH = 1;
+    private static final int DEFAULT_DAY = 1;
+
     private static final int[] MONTHS_LENGTH = {
             31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
@@ -63,21 +67,19 @@ public class MyDate {
     }
 
     public MyDate(){
-        this.year = 0;
-        this.month = 1;
-        this.day = 1;
+        this.year = DEFAULT_YEAR;
+        this.month = DEFAULT_MONTH;
+        this.day = DEFAULT_DAY;
     }
 
     // endregion
 
     // region 3. Getters and Setters
 
-
-    @Override
-    public String toString() {
-        String strDate = "";
-        strDate = this.year + ". " + MONTHS[this.month - 1] + ". " + this.day + ".";
-        return strDate;
+    public boolean isDefault(){
+        return (this.year == DEFAULT_YEAR
+                && this.month == DEFAULT_MONTH
+                && this.day == DEFAULT_DAY);
     }
 
     public int getYear() {
@@ -104,10 +106,6 @@ public class MyDate {
         this.day = day;
     }
 
-    // endregion
-
-    // region 4. Other methods
-
     public MyDate getOneDayEarlier(){
         int year = this.year;
         int month = this.month;
@@ -128,6 +126,17 @@ public class MyDate {
         }
 
         return new MyDate(year, month, day);
+    }
+
+    // endregion
+
+    // region 4. Other methods
+
+    @Override
+    public String toString() {
+        String strDate = "";
+        strDate = this.year + ". " + MONTHS[this.month - 1] + ". " + this.day + ".";
+        return strDate;
     }
 
     // endregion

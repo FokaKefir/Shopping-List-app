@@ -3,9 +3,10 @@ package com.example.shoppinglist.gui.activity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,7 +15,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.model.Item;
@@ -24,7 +24,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.Calendar;
 
 
-public class ItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
+public class ItemActivity extends AppCompatActivity
+        implements View.OnClickListener, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener, TextWatcher {
 
     // region 0. Constants
 
@@ -36,7 +37,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
 
     private EditText txtName;
     private EditText txtDescription;
-    private EditText txtNumbersOfItems;
+    private EditText txtNumberOfItems;
     private TextView txtDate;
 
     private FloatingActionButton btnDone;
@@ -61,7 +62,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
 
         this.txtName = findViewById(R.id.txt_name);
         this.txtDescription = findViewById(R.id.txt_description);
-        this.txtNumbersOfItems = findViewById(R.id.txt_number_of_items);
+        this.txtNumberOfItems = findViewById(R.id.txt_number_of_items);
         this.txtDate = findViewById(R.id.txt_date);
         this.btnDone = findViewById(R.id.fab_done);
         this.btnDate = findViewById(R.id.btn_date);
@@ -70,6 +71,8 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
         this.date = new MyDate();
         this.imageResource = R.drawable.ic_box_blue;
 
+        this.txtName.addTextChangedListener(this);
+        this.txtNumberOfItems.addTextChangedListener(this);
         this.btnDone.setOnClickListener(this);
         this.btnDate.setOnClickListener(this);
         this.spinner.setOnItemSelectedListener(this);
@@ -83,7 +86,6 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
 
     // region 3. Other methods
 
-
     private void readIntent(){
         Intent intent = getIntent();
         Item item = intent.getParcelableExtra(MainActivity.EXTRA_TEXT);
@@ -92,9 +94,13 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
             this.imageResource = item.getImageResource();
             this.txtName.setText(item.getTextName());
             this.txtDescription.setText(item.getTextDescription());
-            this.txtNumbersOfItems.setText(String.valueOf(item.getNumberOfItems()));
+            this.txtNumberOfItems.setText(String.valueOf(item.getNumberOfItems()));
             this.date = item.getDate();
             this.txtDate.setText(this.date.toString());
+
+            this.btnDone.show();
+        } else {
+            this.btnDone.hide();
         }
     }
 
@@ -143,7 +149,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
                 this.imageResource,
                 this.txtName.getText().toString(),
                 this.txtDescription.getText().toString(),
-                Integer.parseInt(this.txtNumbersOfItems.getText().toString()),
+                Integer.parseInt(this.txtNumberOfItems.getText().toString()),
                 this.date
         ));
 
@@ -153,7 +159,7 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
 
     // endregion
 
-    // region 4. Listener
+    // region 4. Implemented methods
 
     @Override
     public void onClick(View view) {
@@ -194,6 +200,28 @@ public class ItemActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+        String strName = this.txtName.getText().toString().trim();
+        String strNumberOfItems = this.txtNumberOfItems.getText().toString().trim();
+
+        if (!strName.isEmpty() && !strNumberOfItems.isEmpty() && Integer.parseInt(strNumberOfItems) > 0) {
+            this.btnDone.show();
+        } else {
+            this.btnDone.hide();
+        }
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+
     }
 
     // endregion

@@ -14,6 +14,7 @@ import com.example.shoppinglist.R;
 import com.example.shoppinglist.gui.activity.MainActivity;
 import com.example.shoppinglist.gui.itemtouchhelper.ItemTouchHelperAdapter;
 import com.example.shoppinglist.model.Item;
+import com.example.shoppinglist.model.MyDate;
 
 import java.util.ArrayList;
 
@@ -63,6 +64,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
         holder.txtDescription.setText(currentItem.getTextDescription());
         holder.txtNumber.setText(String.valueOf(currentItem.getNumberOfItems()));
         holder.txtDate.setText(currentItem.getDate().toString());
+
+        if (new MyDate(holder.txtDate.getText().toString()).isDefault()){
+            holder.txtDate.setText("");
+        }
     }
 
     @Override
