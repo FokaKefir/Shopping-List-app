@@ -2,6 +2,7 @@ package com.example.shoppinglist.gui.recyclerview;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.gui.activity.MainActivity;
 import com.example.shoppinglist.gui.itemtouchhelper.ItemTouchHelperAdapter;
+import com.example.shoppinglist.logic.database.ItemContract;
 import com.example.shoppinglist.model.Item;
 import com.example.shoppinglist.model.MyDate;
 
-import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implements ItemTouchHelperAdapter {
 
@@ -24,9 +25,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
 
     private MainActivity activity;
 
-    private ArrayList<Item> itemList;
     private ItemTouchHelper itemTouchHelper;
     private OnItemListener onItemListener;
+    private Cursor cursor;
 
     private int deletePosition;
 
@@ -34,10 +35,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
 
     // region 2. Constructor
 
-    public RecyclerViewAdapter(ArrayList<Item> itemList, MainActivity activity) {
-        this.itemList = itemList;
+    public RecyclerViewAdapter(MainActivity activity) {
         this.activity = activity;
         this.onItemListener = this.activity.getListener();
+        this.cursor = this.activity.getAllItems();
     }
 
     // endregion
@@ -57,7 +58,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Item currentItem = itemList.get(position);
+        Item currentItem = getItem(position);
 
         holder.imageView.setImageResource(currentItem.getImageResource());
         holder.txtName.setText(currentItem.getTextName());
@@ -72,15 +73,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
 
     @Override
     public int getItemCount() {
-        return itemList.size();
+        return this.cursor.getCount();
     }
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
-        Item fromItem = this.itemList.get(fromPosition);
-        this.itemList.remove(fromItem);
-        this.itemList.add(toPosition, fromItem);
-        notifyItemMoved(fromPosition, toPosition);
+        this.activity.moveItem(fromPosition, toPosition);
     }
 
     @Override
@@ -92,7 +90,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
-                        itemList.remove(deletePosition);
+                        activity.removeItem(deletePosition);
                         notifyItemRemoved(deletePosition);
                         break;
 
@@ -115,6 +113,39 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> implem
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
         this.itemTouchHelper = itemTouchHelper;
+    }
+
+    public Item getItem(int position){
+        if (!this.cursor.moveToPosition(position)) {
+            return null;
+        }
+
+        Item item =  new Item(
+                this.cursor.getInt(this.cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_IMAGE_RESOURCE)),
+                this.cursor.getString(this.cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_NAME)),
+                this.cursor.getString(this.cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DESCRIPTION)),
+                this.cursor.getInt(this.cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_NUMBER_OF_ITEMS)),
+                new MyDate(
+                        this.cursor.getInt(this.cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DATE_YEAR)),
+                        this.cursor.getInt(this.cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DATE_MONTH)),
+                        this.cursor.getInt(this.cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DATE_DAY))
+                )
+        );
+        item.setId(this.cursor.getLong(this.cursor.getColumnIndex(ItemContract.ItemEntry._ID)));
+
+        return item;
+    }
+
+    public void swapCursor(Cursor newCursor) {
+        if (this.cursor != null) {
+            this.cursor.close();
+        }
+
+        this.cursor = newCursor;
+
+        if (newCursor != null) {
+            notifyDataSetChanged();
+        }
     }
 
     // endregion

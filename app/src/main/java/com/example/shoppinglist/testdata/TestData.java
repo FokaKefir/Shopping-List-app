@@ -1,4 +1,4 @@
-package com.example.shoppinglist.testrdata;
+package com.example.shoppinglist.testdata;
 
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.model.Item;

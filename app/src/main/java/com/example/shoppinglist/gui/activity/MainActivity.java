@@ -6,19 +6,22 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.gui.itemtouchhelper.MyItemTouchHelper;
 import com.example.shoppinglist.gui.recyclerview.RecyclerViewAdapter;
+import com.example.shoppinglist.logic.database.DBHelper;
+import com.example.shoppinglist.logic.database.ItemContract;
+import com.example.shoppinglist.logic.database.ItemContract.*;
 import com.example.shoppinglist.logic.listener.MainActivityListener;
 import com.example.shoppinglist.model.Item;
-import com.example.shoppinglist.testrdata.TestData;
+import com.example.shoppinglist.model.MyDate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,10 +31,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1;
     private static final int NO_POSITION = -1;
 
-
     // endregion
 
     // region 1. Decl. and Init.
+
+    private SQLiteDatabase database;
 
     private MainActivityListener listener;
 
@@ -40,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
 
     private FloatingActionButton btnAddItem;
-
-    private ArrayList<Item> testList;
 
     private int position;
 
@@ -54,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         this.setContentView(R.layout.main_activity);
+
+        DBHelper dbHelper = new DBHelper(this);
+        this.database = dbHelper.getWritableDatabase();
 
         this.listener = new MainActivityListener(this);
 
@@ -69,20 +74,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        this.adapter.swapCursor(getAllItems());
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
 
             Item item  = data.getParcelableExtra(ItemActivity.EXTRA_RESULT_TEXT);
 
             if (this.position == NO_POSITION) {
-                this.testList.add(item);
-                this.adapter.notifyItemInserted(this.testList.size() - 1);
+                addItem(item);
             } else {
-                this.testList.remove(this.position);
-                this.testList.add(this.position, item);
-                this.adapter.notifyItemChanged(this.position);
+                editItem(item, this.position);
             }
 
         }
@@ -93,11 +102,9 @@ public class MainActivity extends AppCompatActivity {
     // region 3. Other methods
 
     private void buildRecyclerView(){
-        this.testList = TestData.getTestItems();
-
         this.recyclerView.setHasFixedSize(true);
         this.layoutManager = new LinearLayoutManager(this);
-        this.adapter = new RecyclerViewAdapter(this.testList, this);
+        this.adapter = new RecyclerViewAdapter(this);
 
         ItemTouchHelper.Callback callback = new MyItemTouchHelper(this.adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
@@ -125,9 +132,99 @@ public class MainActivity extends AppCompatActivity {
         this.position = position;
 
         Intent intent = new Intent(this, ItemActivity.class);
-        intent.putExtra(EXTRA_TEXT, this.testList.get(position));
+        intent.putExtra(EXTRA_TEXT, getItem(position));
 
         startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    public void refreshItemAtPosition(int actuallyPosition, int newPosition){
+        Item item = getItem(actuallyPosition);
+
+        this.database.delete(ItemEntry.TABLE_NAME,
+                ItemEntry.COLUMN_POSITION + "=" + actuallyPosition, null);
+
+        ContentValues cv = getCV(item, newPosition);
+
+        this.database.insert(ItemEntry.TABLE_NAME, null, cv);
+    }
+
+    public void addItem(Item item) {
+        this.adapter.swapCursor(getAllItems());
+
+        int position = this.adapter.getItemCount();
+
+        ContentValues cv = getCV(item, position);
+
+        this.database.insert(ItemEntry.TABLE_NAME, null, cv);
+        this.adapter.swapCursor(getAllItems());
+        this.adapter.notifyItemInserted(position);
+    }
+
+    public void editItem(Item item, int position) {
+        this.adapter.swapCursor(getAllItems());
+
+        this.database.delete(ItemEntry.TABLE_NAME,
+                ItemEntry.COLUMN_POSITION + "=" + position, null);
+
+        ContentValues cv = getCV(item, position);
+
+        this.database.insert(ItemEntry.TABLE_NAME, null, cv);
+
+        this.adapter.swapCursor(getAllItems());
+        this.adapter.notifyItemChanged(position);
+    }
+
+    public void removeItem(int position){
+        this.adapter.swapCursor(getAllItems());
+
+        Item item = getItem(position);
+
+        Cursor cursor = getAllItems();
+        cursor.moveToFirst();
+        do {
+            int actuallyPosition = cursor.getInt(cursor.getColumnIndex(ItemEntry.COLUMN_POSITION));
+            if (actuallyPosition > position) {
+                refreshItemAtPosition(actuallyPosition, actuallyPosition - 1);
+            }
+        } while(cursor.moveToNext());
+
+        this.database.delete(ItemEntry.TABLE_NAME,
+                ItemEntry._ID + "=" + item.getId(), null);
+
+        this.adapter.swapCursor(getAllItems());
+        this.adapter.notifyItemRemoved(position);
+    }
+
+    public void moveItem(int fromPosition, int toPosition){
+        Item item = getItem(fromPosition);
+
+        if (fromPosition > toPosition){ // Moving up
+            Cursor cursor = getAllItems();
+            cursor.moveToFirst();
+            do {
+                int actuallyPosition = cursor.getInt(cursor.getColumnIndex(ItemEntry.COLUMN_POSITION));
+                if (actuallyPosition >= toPosition && actuallyPosition < fromPosition) {
+                    refreshItemAtPosition(actuallyPosition, actuallyPosition + 1);
+                }
+            } while(cursor.moveToNext());
+
+        } else if (fromPosition < toPosition){ // Moving down
+            Cursor cursor = getAllItems();
+            cursor.moveToFirst();
+            do {
+                int actuallyPosition = cursor.getInt(cursor.getColumnIndex(ItemEntry.COLUMN_POSITION));
+                if (actuallyPosition > fromPosition && actuallyPosition <= toPosition) {
+                    refreshItemAtPosition(actuallyPosition, actuallyPosition - 1);
+                }
+            } while(cursor.moveToNext());
+        }
+
+        this.database.delete(ItemEntry.TABLE_NAME,
+                ItemEntry._ID + "=" + item.getId(), null);
+        ContentValues cv = getCV(item, toPosition);
+        this.database.insert(ItemEntry.TABLE_NAME, null, cv);
+
+        this.adapter.notifyItemMoved(fromPosition, toPosition);
     }
 
     // endregion
@@ -138,6 +235,55 @@ public class MainActivity extends AppCompatActivity {
         return this.listener;
     }
 
-    // endregion
+    public Cursor getAllItems() {
+        return this.database.query(
+                ItemEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                ItemEntry.COLUMN_POSITION + " ASC"
+        );
+    }
+
+    public Item getItem(int position){
+        Cursor cursor = getAllItems();
+
+        if (!cursor.moveToPosition(position)) {
+            return null;
+        }
+
+        Item item = new Item(
+                cursor.getInt(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_IMAGE_RESOURCE)),
+                cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_NAME)),
+                cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DESCRIPTION)),
+                cursor.getInt(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_NUMBER_OF_ITEMS)),
+                new MyDate(
+                        cursor.getInt(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DATE_YEAR)),
+                        cursor.getInt(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DATE_MONTH)),
+                        cursor.getInt(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_DATE_DAY))
+                )
+        );
+        item.setId(cursor.getLong(cursor.getColumnIndex(ItemContract.ItemEntry._ID)));
+
+        return item;
+    }
+
+    public ContentValues getCV(Item item, int position){
+        ContentValues cv = new ContentValues();
+        cv.put(ItemEntry.COLUMN_NAME, item.getTextName());
+        cv.put(ItemEntry.COLUMN_DESCRIPTION, item.getTextDescription());
+        cv.put(ItemEntry.COLUMN_IMAGE_RESOURCE, item.getImageResource());
+        cv.put(ItemEntry.COLUMN_NUMBER_OF_ITEMS, item.getNumberOfItems());
+        cv.put(ItemEntry.COLUMN_DATE_YEAR, item.getDate().getYear());
+        cv.put(ItemEntry.COLUMN_DATE_MONTH, item.getDate().getMonth());
+        cv.put(ItemEntry.COLUMN_DATE_DAY, item.getDate().getDay());
+        cv.put(ItemEntry.COLUMN_POSITION, position);
+
+        return cv;
+    }
+
+// endregion
 
 }

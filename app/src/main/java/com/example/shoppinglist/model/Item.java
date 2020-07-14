@@ -24,6 +24,8 @@ public class Item implements Parcelable {
     private int numberOfItems;
     private MyDate date;
 
+    private long id;
+
     // endregion
 
     // region 2. Constructor
@@ -90,6 +92,10 @@ public class Item implements Parcelable {
         return date;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public void setImageResource(int imageResource) {
         this.imageResource = imageResource;
     }
@@ -108,6 +114,10 @@ public class Item implements Parcelable {
 
     public void setDate(MyDate date) {
         this.date = date;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     // endregion
