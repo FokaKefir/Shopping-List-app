@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.gui.itemtouchhelper.MyItemTouchHelper;
@@ -196,33 +197,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveItem(int fromPosition, int toPosition){
-        Item item = getItem(fromPosition);
-
-        if (fromPosition > toPosition){ // Moving up
-            Cursor cursor = getAllItems();
-            cursor.moveToFirst();
-            do {
-                int actuallyPosition = cursor.getInt(cursor.getColumnIndex(ItemEntry.COLUMN_POSITION));
-                if (actuallyPosition >= toPosition && actuallyPosition < fromPosition) {
-                    refreshItemAtPosition(actuallyPosition, actuallyPosition + 1);
-                }
-            } while(cursor.moveToNext());
-
-        } else if (fromPosition < toPosition){ // Moving down
-            Cursor cursor = getAllItems();
-            cursor.moveToFirst();
-            do {
-                int actuallyPosition = cursor.getInt(cursor.getColumnIndex(ItemEntry.COLUMN_POSITION));
-                if (actuallyPosition > fromPosition && actuallyPosition <= toPosition) {
-                    refreshItemAtPosition(actuallyPosition, actuallyPosition - 1);
-                }
-            } while(cursor.moveToNext());
-        }
+        Item fromItem = getItem(fromPosition);
+        Item toItem = getItem(toPosition);
 
         this.database.delete(ItemEntry.TABLE_NAME,
-                ItemEntry._ID + "=" + item.getId(), null);
-        ContentValues cv = getCV(item, toPosition);
-        this.database.insert(ItemEntry.TABLE_NAME, null, cv);
+                ItemEntry.COLUMN_POSITION + "=" + fromPosition, null);
+        this.database.delete(ItemEntry.TABLE_NAME,
+                ItemEntry.COLUMN_POSITION + "=" + toPosition, null);
+
+        ContentValues fromCV = getCV(fromItem, toPosition);
+        ContentValues toCV = getCV(toItem, fromPosition);
+
+        this.database.insert(ItemEntry.TABLE_NAME, null, fromCV);
+        this.database.insert(ItemEntry.TABLE_NAME, null, toCV);
 
         this.adapter.notifyItemMoved(fromPosition, toPosition);
     }

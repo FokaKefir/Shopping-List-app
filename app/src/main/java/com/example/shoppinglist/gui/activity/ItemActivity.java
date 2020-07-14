@@ -96,7 +96,11 @@ public class ItemActivity extends AppCompatActivity
             this.txtDescription.setText(item.getTextDescription());
             this.txtNumberOfItems.setText(String.valueOf(item.getNumberOfItems()));
             this.date = item.getDate();
-            this.txtDate.setText(this.date.toString());
+            if (!this.date.isDefault()) {
+                this.txtDate.setText(this.date.toString());
+            } else {
+                this.txtDate.setText(R.string.str_date);
+            }
 
             this.btnDone.show();
         } else {
