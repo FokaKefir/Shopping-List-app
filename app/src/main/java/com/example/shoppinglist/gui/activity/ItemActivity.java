@@ -15,6 +15,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.model.Item;
@@ -41,7 +42,6 @@ public class ItemActivity extends AppCompatActivity
     private TextView txtDate;
 
     private FloatingActionButton btnDone;
-    private Button btnDate;
 
     private Spinner spinner;
 
@@ -65,7 +65,6 @@ public class ItemActivity extends AppCompatActivity
         this.txtNumberOfItems = findViewById(R.id.txt_number_of_items);
         this.txtDate = findViewById(R.id.txt_date);
         this.btnDone = findViewById(R.id.fab_done);
-        this.btnDate = findViewById(R.id.btn_date);
         this.spinner = findViewById(R.id.color_spinner);
 
         this.date = new MyDate();
@@ -74,8 +73,9 @@ public class ItemActivity extends AppCompatActivity
         this.txtName.addTextChangedListener(this);
         this.txtNumberOfItems.addTextChangedListener(this);
         this.btnDone.setOnClickListener(this);
-        this.btnDate.setOnClickListener(this);
+        this.txtDate.setOnClickListener(this);
         this.spinner.setOnItemSelectedListener(this);
+
 
         readIntent();
         buildSpinner();
@@ -167,10 +167,13 @@ public class ItemActivity extends AppCompatActivity
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.fab_done) {
-            sendResult();
-        } else if (view.getId() == R.id.btn_date) {
-            showDatePickerDialog();
+        switch (view.getId()) {
+            case R.id.fab_done:
+                sendResult();
+                break;
+            case R.id.txt_date:
+                showDatePickerDialog();
+                break;
         }
     }
 
