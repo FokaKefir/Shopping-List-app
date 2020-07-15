@@ -2,7 +2,7 @@
     <string name="app_name">Shopping List</string>
     <string name="str_description">Description</string>
     <string name="str_name">Item\'s name</string>
-    <string name="str_number_of_items">Number of items</string>
+    <string name="str_number_of_items">0</string>
     <string name="str_date">Date</string>
     <string name="str_choose_date">Choose date</string>
 

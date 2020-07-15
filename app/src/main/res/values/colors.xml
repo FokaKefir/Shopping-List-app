@@ -6,4 +6,5 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorSilver">#C0C0C0</color>
     <color name="colorFloatingButton">#FFEB3B</color>
+    <color name="colorBlack">#000000</color>
 </resources>

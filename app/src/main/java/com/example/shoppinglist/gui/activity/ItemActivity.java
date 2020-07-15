@@ -18,10 +18,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.shoppinglist.R;
+import com.example.shoppinglist.gui.spinner.SpinnerAdapter;
 import com.example.shoppinglist.model.Item;
 import com.example.shoppinglist.model.MyDate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 
@@ -47,6 +49,7 @@ public class ItemActivity extends AppCompatActivity
 
     private MyDate date;
     private int imageResource;
+    private ArrayList<Integer> spinnerList;
 
     // endregion
 
@@ -76,9 +79,8 @@ public class ItemActivity extends AppCompatActivity
         this.txtDate.setOnClickListener(this);
         this.spinner.setOnItemSelectedListener(this);
 
-
-        readIntent();
         buildSpinner();
+        readIntent();
 
     }
 
@@ -102,6 +104,8 @@ public class ItemActivity extends AppCompatActivity
                 this.txtDate.setText(R.string.str_date);
             }
 
+            this.spinner.setSelection(this.spinnerList.indexOf(this.imageResource));
+
             this.btnDone.show();
         } else {
             this.btnDone.hide();
@@ -109,31 +113,16 @@ public class ItemActivity extends AppCompatActivity
     }
 
     private void buildSpinner() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.colors,
-                android.R.layout.simple_spinner_item
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.spinner.setAdapter(adapter);
-        switch (this.imageResource){
-            case R.drawable.ic_box_blue:
-                this.spinner.setSelection(0);
-                break;
-            case R.drawable.ic_box_green:
-                this.spinner.setSelection(1);
-                break;
-            case R.drawable.ic_box_orange:
-                this.spinner.setSelection(2);
-                break;
-            case R.drawable.ic_box_red:
-                this.spinner.setSelection(3);
-                break;
-            case R.drawable.ic_box_yellow:
-                this.spinner.setSelection(4);
-                break;
-        }
+        this.spinnerList = new ArrayList<>();
+        this.spinnerList.add(R.drawable.ic_box_blue);
+        this.spinnerList.add(R.drawable.ic_box_green);
+        this.spinnerList.add(R.drawable.ic_box_orange);
+        this.spinnerList.add(R.drawable.ic_box_red);
+        this.spinnerList.add(R.drawable.ic_box_yellow);
 
+        SpinnerAdapter adapter = new SpinnerAdapter(this, this.spinnerList);
+
+        this.spinner.setAdapter(adapter);
     }
 
     private void showDatePickerDialog(){
@@ -184,25 +173,8 @@ public class ItemActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-        String strColor = adapterView.getItemAtPosition(position).toString();
-        switch (strColor){
-            case "blue":
-                this.imageResource = R.drawable.ic_box_blue;
-                break;
-            case "green":
-                this.imageResource = R.drawable.ic_box_green;
-                break;
-            case "orange":
-                this.imageResource = R.drawable.ic_box_orange;
-                break;
-            case "red":
-                this.imageResource = R.drawable.ic_box_red;
-                break;
-            case "yellow":
-                this.imageResource = R.drawable.ic_box_yellow;
-                break;
-        }
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        this.imageResource = (Integer) parent.getItemAtPosition(position);
     }
 
     @Override
