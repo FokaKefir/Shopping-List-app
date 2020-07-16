@@ -168,7 +168,7 @@ public class ItemActivity extends AppCompatActivity
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
-        this.date = new MyDate(year, month, dayOfMonth);
+        this.date = new MyDate(year, month+1, dayOfMonth);
         this.txtDate.setText(this.date.toString());
     }
 

@@ -1,5 +1,7 @@
 package com.example.shoppinglist.model;
 
+import androidx.annotation.Nullable;
+
 public class MyDate {
 
     // region 0. Constants
@@ -137,6 +139,19 @@ public class MyDate {
         String strDate = "";
         strDate = this.year + ". " + MONTHS[this.month - 1] + ". " + this.day + ".";
         return strDate;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        MyDate date = (MyDate) obj;
+        if (date == null)
+            return false;
+
+        return (
+                date.getYear() == this.year
+                && date.getMonth() == this.month
+                && date.getDay() == this.day
+                );
     }
 
     // endregion

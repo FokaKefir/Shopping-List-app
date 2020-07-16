@@ -16,6 +16,7 @@ import android.util.Log;
 import com.example.shoppinglist.R;
 import com.example.shoppinglist.gui.itemtouchhelper.MyItemTouchHelper;
 import com.example.shoppinglist.gui.recyclerview.RecyclerViewAdapter;
+import com.example.shoppinglist.gui.service.NotificationService;
 import com.example.shoppinglist.logic.database.DBHelper;
 import com.example.shoppinglist.logic.database.ItemContract;
 import com.example.shoppinglist.logic.database.ItemContract.*;
@@ -98,9 +99,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        startService(
+                new Intent(this, NotificationService.class)
+        );
+    }
+
     // endregion
 
-    // region 3. Other methods
+    // region 3. Recycler View methods
 
     private void buildRecyclerView(){
         this.recyclerView.setHasFixedSize(true);
@@ -118,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
         this.recyclerView.setAdapter(this.adapter);
 
     }
+
+    // endregion
+
+    // region 4. New activity methods
 
     public void createNewItem() {
         this.position = NO_POSITION;
@@ -137,6 +151,10 @@ public class MainActivity extends AppCompatActivity {
 
         startActivityForResult(intent, REQUEST_CODE);
     }
+
+    // endregion
+
+    // region 5. Database methods
 
     public void refreshItemAtPosition(int actuallyPosition, int newPosition){
         Item item = getItem(actuallyPosition);
@@ -216,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
 
     // endregion
 
-    // region 4. Getters and Setters
+    // region 6. Getters and Setters
 
     public MainActivityListener getListener() {
         return this.listener;
@@ -271,6 +289,6 @@ public class MainActivity extends AppCompatActivity {
         return cv;
     }
 
-// endregion
+    // endregion
 
 }
